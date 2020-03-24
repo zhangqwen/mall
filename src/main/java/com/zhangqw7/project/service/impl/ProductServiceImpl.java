@@ -21,7 +21,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Product findById(Integer id) {
-        System.out.println("服务层查询指定类型商品。。。");
+        System.out.println("服务层查询指定id商品。。。");
         return iProductDao.findById(id);
     }
 
@@ -32,7 +32,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Product findByName(String name) {
+    public List<Product> findByName(String name) {
         System.out.println("服务层查询指定名称商品。。。");
         return iProductDao.findByName(name);
     }

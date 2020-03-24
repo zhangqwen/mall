@@ -13,5 +13,7 @@
 <body>
     <a href="<%=request.getContextPath()%>/user/cancel">注销账号</a><tr />
     <a href="<%=request.getContextPath()%>/user/reset">更改账号信息</a><tr />
+    <a href="<%=request.getContextPath()%>/user/orders">查看订单</a><tr />
+    <a href="<%=request.getContextPath()%>/product/catalog">返回主页</a><tr />
 </body>
 </html>

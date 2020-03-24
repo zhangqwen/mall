@@ -1,15 +1,20 @@
 package com.zhangqw7.project.controller;
 
+import com.zhangqw7.project.model.Order;
 import com.zhangqw7.project.model.User;
+import com.zhangqw7.project.service.OrderService;
+import com.zhangqw7.project.service.ProductService;
 import com.zhangqw7.project.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.util.List;
 import java.util.UUID;
 
 @Controller
@@ -18,6 +23,12 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private ProductService productService;
+
+    @Autowired
+    private OrderService orderService;
 
     @RequestMapping("/user/registering")
     public String registering() {
@@ -44,6 +55,11 @@ public class UserController {
             System.out.println("用户名已存在，请更改用户名。。。");
             return "registerForm";
         }
+    }
+
+    @RequestMapping("/user/index")
+    public String main() {
+        return "../../index";
     }
 
     @RequestMapping(value = "/user/login", method = RequestMethod.POST)
@@ -111,5 +127,94 @@ public class UserController {
         userService.update(user);
         System.out.println("控制层修改密码成功");
         return "catalogue";
+    }
+
+    @RequestMapping("/user/orders")
+    public String viewOrders(Model model, HttpServletRequest request) {
+        HttpSession session = request.getSession(true);
+        Integer user_id = (Integer) session.getAttribute("session");
+
+        List<Order> orders = orderService.findOrderByUserId(user_id);
+        model.addAttribute("orders", orders);
+
+        model.addAttribute("productService", productService);
+
+        return "userOrders";
+    }
+
+    @RequestMapping("/admin/login")
+    public String adminLogin() {
+        return "adminLogin";
+    }
+
+    @RequestMapping("/admin/setting")
+    public String adminSetting(String username, String password, Model model, HttpServletRequest request) {
+        User admin = userService.findUserByName(username);
+        if(admin == null){
+            System.out.println("系统管理员账号错误。。。");
+            return "adminLogin";
+        }
+        if(admin.getPassword().equals(password)){
+            if(admin.getId()==1){
+                List<User> users = userService.findAllUser();
+                model.addAttribute("users", users);
+
+                HttpSession session = request.getSession(true);
+                session.setAttribute("session", admin.getId());
+                return "adminSetting";
+            }else if(admin.getId()==19){
+                return "saler";
+            }else {
+                return "../../index";
+            }
+        }else {
+            System.out.println("系统管理员密码错误。。。");
+            return "adminLogin";
+        }
+    }
+
+    @RequestMapping("/admin/saler")
+    public String backToSaler() {
+        return "saler";
+    }
+
+    @RequestMapping("/admin/returnSetting")
+    public String returnSetting(Model model) {
+        List<User> users = userService.findAllUser();
+        model.addAttribute("users", users);
+        return "adminSetting";
+    }
+
+    @RequestMapping("/admin/deleteUser")
+    public String deleteUser(Integer user_id, Model model) {
+        userService.deleteUserById(user_id);
+
+        List<User> users = userService.findAllUser();
+        model.addAttribute("users", users);
+        return "adminSetting";
+    }
+
+    @RequestMapping("/admin/addUser")
+    public String addUser() {
+        return "addUser";
+    }
+
+    @RequestMapping("/admin/addedUser")
+    public String addedUser(@ModelAttribute User us, Model model){
+        User user = userService.findUserByName(us.getUsername());
+        User user_ = userService.findUserById(us.getId());
+        if(user == null){
+            if(user_ == null) {
+                userService.register(us);
+                System.out.println("注册成功");
+                return "addUser";
+            }else {
+                System.out.println("用户ID已存在，请更改用户ID。。。");
+                return "adminSetting";
+            }
+        }else {
+            System.out.println("用户名已存在，请更改用户名。。。");
+            return "adminSetting";
+        }
     }
 }

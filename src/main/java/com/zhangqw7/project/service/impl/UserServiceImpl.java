@@ -6,6 +6,8 @@ import com.zhangqw7.project.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service("userService")
 public class UserServiceImpl implements UserService {
 
@@ -40,5 +42,15 @@ public class UserServiceImpl implements UserService {
     public User findUserById(Integer id) {
         System.out.println("服务层查询指定id用户。。。");
         return userDao.findUserById(id);
+    }
+
+    @Override
+    public List<User> findAllUser() {
+        return userDao.findAllUser();
+    }
+
+    @Override
+    public void deleteUserById(Integer id){
+        userDao.deleteUserById(id);
     }
 }

@@ -20,10 +20,10 @@
         <property name="prefix" value="/WEB-INF/pages/"/>
         <property name="suffix" value=".jsp"/>
     </bean>
-    <!--过滤静态资源
+    <!--过滤静态资源-->
     <mvc:resources location="/css" mapping="/css/**"/>
     <mvc:resources location="/images/" mapping="/images/**"/>
     <mvc:resources location="/js/" mapping="/js/**"/>
-    开启SpringMVC注解的支持-->
+    <!--开启SpringMVC注解的支持-->
     <mvc:annotation-driven/>
 </beans>

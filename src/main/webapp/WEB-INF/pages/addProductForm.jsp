@@ -13,13 +13,13 @@
 <body>
     <h2>录入商品信息</h2>
     <form action="<%=request.getContextPath()%>/product/save" method="post">
-        名称<input type="text" name="name"><br />
-        数量<input type="text" name="stock"><br />
-        价格<input type="text" name="price"><br />
-        类别<input type="text" name="type"><br />
-        <input type="submit" value="录入">
+        名称<input type="text" name="name" /><br />
+        数量<input type="text" name="stock" /><br />
+        价格<input type="text" name="price" /><br />
+        类别<input type="text" name="type" /><br />
+        <input type="submit" value="录入" />
     </form> <br />
 
-    <a href="<%=request.getContextPath()%>/product/catalog">返回目录</a>
+    <a href="<%=request.getContextPath()%>/admin/saler">返回管理首页</a>
 </body>
 </html>

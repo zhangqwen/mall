@@ -2,14 +2,14 @@ package com.zhangqw7.project.model;
 
 import java.io.Serializable;
 
-public class OrderDetail implements Serializable {
+public class Order implements Serializable {
 
     private Integer id;
     private Integer product_id;
-    private String product_name;
     private Integer amount;
     private Double money;
     private Integer user_id;
+    private String status;
 
     public Integer getId() {
         return id;
@@ -25,14 +25,6 @@ public class OrderDetail implements Serializable {
 
     public void setProduct_id(Integer product_id) {
         this.product_id = product_id;
-    }
-
-    public String getProduct_name() {
-        return product_name;
-    }
-
-    public void setProduct_name(String product_name) {
-        this.product_name = product_name;
     }
 
     public Integer getAmount() {
@@ -59,9 +51,17 @@ public class OrderDetail implements Serializable {
         return user_id;
     }
 
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
     @Override
     public String toString() {
-        return "OrderDetail{" +
+        return "Order{" +
 
                 "}";
     }

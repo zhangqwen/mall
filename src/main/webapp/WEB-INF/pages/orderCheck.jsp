@@ -13,14 +13,14 @@
 </head>
 <body>
     <h2>请确认您的订单</h2>
-    <c:set var="od" value="${orderDetail}" />
+    <c:set var="od" value="${order}" />
     <tr>
-        <td>名称：<c:out value="${od.product_name}" /></td><br />
+        <td>名称：<c:out value="${productService.findById(od.product_id).name}" /></td><br />
         <td>数量：<c:out value="${od.amount}" /></td><br />
         <td>总价：<c:out value="${od.money}" /></td><br />
     </tr>
     <h2>验证您的身份以确保本次交易安全</h2>
-    <form action="<%=request.getContextPath()%>/order/confirmUser?order_id=${od.id}" method="post">
+    <form action="<%=request.getContextPath()%>/order/confirmUser" method="post"> <!--/order/confirmUser?order_id=${od.id}-->
         <!--用户名<input type="text" name="username" /><br /> -->
         密码  <input type="password" name="password" /><br />
         <input type="submit" value="验证">

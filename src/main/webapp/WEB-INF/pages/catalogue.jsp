@@ -14,15 +14,16 @@
     <h2>分类</h2>
     <tr>
         <td>
-            <a href="<%=request.getContextPath()%>/product/add">录入商品信息</a>
+            <a href="<%=request.getContextPath()%>/user/setting">个人中心</a>
         </td>
     </tr><br />
     <tr>
         <td>
-            <a href="<%=request.getContextPath()%>/user/setting">修改个人信息</a>
-        </td>
-    </tr><br />
-    <tr>
+        <form action="<%=request.getContextPath()%>/product/search" method="post">
+            <input type="text" name="name">
+            <input type="submit" value="查询">
+        </form>
+        </td><br />
         <td>
             <a href="<%=request.getContextPath()%>/product/huawei">华为手机</a>
         </td><br />

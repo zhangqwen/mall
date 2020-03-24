@@ -7,6 +7,8 @@ import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface UserDao {
 
@@ -16,6 +18,9 @@ public interface UserDao {
     @Delete("delete from User where username=#{username}")
     public void cancel(User user);
 
+    @Delete("delete from User where id=#{id}")
+    public void deleteUserById(Integer id);
+
     @Update("update User set password=#{password} where id=#{id}")
     public void update(User user);
 
@@ -24,4 +29,9 @@ public interface UserDao {
 
     @Select("select * from User where id=#{id}")
     public User findUserById(Integer id);
+
+    @Select("select * from user where id>1")
+    public List<User> findAllUser();
+
 }
+// D:\Tools\mysql\mysql-8.0.19-winx64\bin

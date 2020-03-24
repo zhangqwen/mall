@@ -21,7 +21,7 @@ public class TestMyBatis {
         //product.setRemark("又黄又大又好吃啊！");
         //加载配置文件
 
-        ApplicationContext ac = new ClassPathXmlApplicationContext("classpath:applicationContext.xml");
+        ApplicationContext ac = new ClassPathXmlApplicationContext("applicationContext.xml");
         SqlSessionFactory ssf = (SqlSessionFactory) ac.getBean("sqlSessionFactory");
         SqlSession session = ssf.openSession();
 
@@ -32,7 +32,7 @@ public class TestMyBatis {
 
     @Test
     public void run2() throws Exception {
-        ApplicationContext ac = new ClassPathXmlApplicationContext("classpath:applicationContext.xml");
+        ApplicationContext ac = new ClassPathXmlApplicationContext("applicationContext.xml");
         SqlSessionFactory ssf = (SqlSessionFactory) ac.getBean("sqlSessionFactory");
         SqlSession session = ssf.openSession();
 

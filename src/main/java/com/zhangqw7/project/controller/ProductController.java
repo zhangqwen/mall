@@ -42,6 +42,14 @@ public class ProductController {
         return "detail";
     }
 
+    @RequestMapping(value = "/product/search", method = RequestMethod.POST)
+    public String findByName(String name, Model model) {
+        System.out.println(name);
+        List<Product> list = productService.findByName(name);
+        model.addAttribute("listbyname", list);
+        return "detail";
+    }
+
     @RequestMapping("/product/add")
     public String addProduct() {
         return "addProductForm";
@@ -55,7 +63,16 @@ public class ProductController {
     }
 
     @RequestMapping("/product/order")
-    public String order() {
+    public String order(@ModelAttribute Product product, Model model) {
+        model.addAttribute("product_id", product.getId());
         return "orderForm";
+    }
+
+    @RequestMapping("/admin/products")
+    public String adminProducts(Model model) {
+        List<Product> products = productService.findAll();
+
+        model.addAttribute("admin_products", products);
+        return "adminProducts";
     }
 }

@@ -37,18 +37,20 @@
     <td>介绍</td><br>
 </tr>
 <c:forEach items="${listAll}" var="product">
+<form action="<%=request.getContextPath()%>/order/confirmOrder" method="post">
     <tr>
         <td><c:out value="${product.name}" /></td>
         <td><c:out value="${product.stock}" /></td>
         <td><c:out value="${product.price}" /></td>
         <td><c:out value="${product.type}" /></td>
-        <br>
+        <td>
+            <input type="hidden" name="product_id" value="${product.id}" />
+            购买数量<input type="text" name="amount">
+            <input type="submit" value="立即购买" />
+        </td>
+        <br />
     </tr>
+</form>
 </c:forEach>
-<tr>
-    <td>
-        <a href="<%=request.getContextPath()%>/product/order">立即购买</a>
-    </td>
-</tr>
 </body>
 </html>

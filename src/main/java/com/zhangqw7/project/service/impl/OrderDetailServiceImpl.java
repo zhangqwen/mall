@@ -1,26 +1,50 @@
 package com.zhangqw7.project.service.impl;
 
-import com.zhangqw7.project.dao.OrderDetailDao;
-import com.zhangqw7.project.model.OrderDetail;
-import com.zhangqw7.project.service.OrderDetailService;
+import com.zhangqw7.project.dao.OrderDao;
+import com.zhangqw7.project.model.Order;
+import com.zhangqw7.project.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service("orderDetailService")
-public class OrderDetailServiceImpl implements OrderDetailService {
+public class OrderDetailServiceImpl implements OrderService {
 
     @Autowired
-    private OrderDetailDao orderDetailDao;
+    private OrderDao orderDao;
 
     @Override
-    public void setOrder(OrderDetail orderDetail) {
+    public void setOrder(Order order) {
         System.out.println("业务层创建订单。。。");
-        orderDetailDao.setOrder(orderDetail);
+        orderDao.setOrder(order);
     }
 
     @Override
-    public OrderDetail checkOrderById(Integer id) {
-        System.out.println("业务层查询订单id");
-        return orderDetailDao.checkOrderById(id);
+    public Order checkOrderById(Integer id) {
+        System.out.println("业务层查询订单by id");
+        return orderDao.checkOrderById(id);
+    }
+
+    @Override
+    public Order findLastOrder() {
+        System.out.println("业务层查询最后一次订单");
+        return  orderDao.findLastOrder();
+    }
+
+    @Override
+    public List<Order> findOrderByUserId(Integer user_id) {
+        System.out.println("业务层查询指定用户id订单");
+        return orderDao.findOrderByUserId(user_id);
+    }
+
+    @Override
+    public List<Order> findOrderByStatus(String status) {
+        return orderDao.findOrderByStatus(status);
+    }
+
+    @Override
+    public void updateOrderStatus(Order order) {
+        orderDao.updateOrderStatus(order);
     }
 }

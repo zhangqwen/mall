@@ -17,6 +17,6 @@
         密码  <input type="password" name="password" /> <br />
         <input type="submit" value="注册">
     </form>
-
+    <a href="<%=request.getContextPath()%>/user/index">有账号了？去登录</a>
 </body>
 </html>
