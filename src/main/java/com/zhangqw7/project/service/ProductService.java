@@ -11,9 +11,15 @@ public interface ProductService {
 
     List<Product> findByType(String type);
 
-    List<Product> findByName(String name);
+    Product findByName(String name);
+
+    List<Product> seekByName(String name);
 
     void saveProduct(Product product);
 
-    void updateStock(Product product);
+    void updateProduct(Product product);
+
+    List<String> getAllTypes();
+
+    void  deleteProductByName(String name);
 }

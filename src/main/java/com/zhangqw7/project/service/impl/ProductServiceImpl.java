@@ -32,9 +32,15 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<Product> findByName(String name) {
+    public Product findByName(String name) {
         System.out.println("服务层查询指定名称商品。。。");
         return iProductDao.findByName(name);
+    }
+
+    @Override
+    public List<Product> seekByName(String name) {
+        System.out.println("服务层模糊查询指定名称商品。。。");
+        return iProductDao.seekByName(name);
     }
 
     @Override
@@ -44,7 +50,19 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public void updateStock(Product product) {
-        iProductDao.updateStock(product);
+    public void updateProduct(Product product) {
+        System.out.println("Service业务层：更新商品库存。。。");
+        iProductDao.updateProduct(product);
+    }
+
+    @Override
+    public List<String> getAllTypes() {
+        System.out.println("Service业务层：获取所有类别。。。");
+        return iProductDao.getAllTypes();
+    }
+
+    @Override
+    public void deleteProductByName(String name) {
+        iProductDao.deleteProductByName(name);
     }
 }

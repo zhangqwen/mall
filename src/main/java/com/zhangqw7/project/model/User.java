@@ -9,6 +9,15 @@ public class User implements Serializable {
     private String username;
     private String password;
 
+    public User() {
+    }
+
+    public User(Integer id, String username, String password) {
+        this.id = id;
+        this.username = username;
+        this.password = password;
+    }
+
     public void setId(Integer id) {
         this.id = id;
     }
@@ -36,7 +45,8 @@ public class User implements Serializable {
     @Override
     public String toString() {
         return "User{" +
-
+                "username=" + username +
+                "; password=" + password +
                 "}";
     }
 }

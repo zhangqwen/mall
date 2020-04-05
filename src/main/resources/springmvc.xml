@@ -15,15 +15,28 @@
         <context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
     </context:component-scan>
 
-    <!--配置的视图解析器对象-->
+<!--    &lt;!&ndash;配置的视图解析器对象&ndash;&gt;
     <bean id="internalResourceViewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
         <property name="prefix" value="/WEB-INF/pages/"/>
         <property name="suffix" value=".jsp"/>
     </bean>
-    <!--过滤静态资源-->
+    &lt;!&ndash;过滤静态资源&ndash;&gt;
     <mvc:resources location="/css" mapping="/css/**"/>
     <mvc:resources location="/images/" mapping="/images/**"/>
-    <mvc:resources location="/js/" mapping="/js/**"/>
+    <mvc:resources location="/js/" mapping="/js/**"/>-->
     <!--开启SpringMVC注解的支持-->
-    <mvc:annotation-driven/>
+    <mvc:annotation-driven>
+        <mvc:message-converters register-defaults="false">
+            <!--配置fastJson实现httpMessageConverter接口的转换器，@ResponseBody-->
+            <bean id="fastJsonHttpMessageConverter" class="com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter">
+                <property name="supportedMediaTypes">
+                    <list>
+                        <value>text/html;charset=UTF-8</value>
+                        <value>application/json;charset=UTF-8</value>
+                    </list>
+                </property>
+            </bean>
+        </mvc:message-converters>
+
+    </mvc:annotation-driven>
 </beans>

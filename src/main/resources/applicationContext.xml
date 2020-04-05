@@ -52,6 +52,24 @@
         <property name="dataSource" ref="dataSource"/>
     </bean>
 
+    <!--配置拦截器，拦截所有controller中的异常-->
+    <bean id="exceptionInterceptor"
+          class="com.zhangqw7.project.interceptor.ControllerInterceptor">
+    </bean>
+
+    <!--配置日志-->
+    <!--<context:property-placeholder location="classpath:logConfig.properties"/>-->
+
+    <!-- 定义AOP配置 -->
+    <aop:config proxy-target-class="true">
+        <aop:pointcut id="controller"
+                      expression="execution(* com.zhangqw7.project.controller..*.*(..))"/>
+        <!-- 通用异常处理 -->
+        <aop:aspect ref="exceptionInterceptor">
+            <aop:around pointcut-ref="controller" method="catchExceptions"/>
+        </aop:aspect>
+    </aop:config>
+
     <!--配置IAccountdao接口所在包-->
     <bean id="mapperScanner" class="org.mybatis.spring.mapper.MapperScannerConfigurer">
         <property name="basePackage" value="com.zhangqw7.project.dao"/>

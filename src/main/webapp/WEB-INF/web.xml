@@ -39,6 +39,16 @@
     <url-pattern>/*</url-pattern>
   </filter-mapping>
 
+  <filter>
+    <filter-name>CrosFilter</filter-name>
+    <filter-class>com.zhangqw7.project.filter.CrosFilter</filter-class>
+  </filter>
+  <filter-mapping>
+    <filter-name>CrosFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+
+
   <!--配置Spring的监听器，默认只加载WEB-INF目录下的applicationContext.xml配置文件-->
   <listener>
     <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>

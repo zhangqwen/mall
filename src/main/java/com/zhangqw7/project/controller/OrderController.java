@@ -1,12 +1,14 @@
 package com.zhangqw7.project.controller;
 
+import com.alibaba.fastjson.JSONObject;
+import com.zhangqw7.project.constant.RespCode;
 import com.zhangqw7.project.model.Order;
 import com.zhangqw7.project.model.Product;
 import com.zhangqw7.project.model.User;
 import com.zhangqw7.project.service.OrderService;
-import com.zhangqw7.project.service.OrderProfileService;
 import com.zhangqw7.project.service.ProductService;
 import com.zhangqw7.project.service.UserService;
+import com.zhangqw7.project.utils.ResponseJson;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -14,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Controller
@@ -29,8 +30,116 @@ public class OrderController {
     @Autowired
     private UserService userService;
 
-    @Autowired
-    private OrderProfileService orderProfileService;
+    /**
+     * 购买商品提交订单
+     * @param order 必须提供order.user_id, order.product_id, order.amount
+     * @return data: order_id
+     */
+    @RequestMapping("/order/create")
+    @ResponseBody
+    public String createOrder(@RequestBody Order order) {
+        Integer amount = order.getAmount();
+        Integer product_id = order.getProduct_id();
+        Product product = productService.findById(product_id);
+
+        if (amount <= product.getStock()) {
+
+            Double money = amount * product.getPrice();
+            order.setMoney(money);
+//            order.setStatus("untreated");
+            orderService.setOrder(order);
+
+            //更新库存
+            product.setStock(product.getStock() - amount);
+            productService.updateProduct(product);
+
+//            Integer order_id = orderService.getLastId();
+            Integer order_id = orderService.findLastOrder().getId();
+
+            ResponseJson rm = new ResponseJson(RespCode.CODE_1000, "购买成功！", order_id);
+            return JSONObject.toJSONString(rm.toMap());
+        } else {
+            ResponseJson rm = new ResponseJson(RespCode.CODE_1001, "商品太火爆了，库存不足请减少数量或选购其它商品");
+            return JSONObject.toJSONString(rm.toMap());
+        }
+
+    }
+
+    /**
+     * 查找指定用户ID对应的所有订单
+     * @param user user.id
+     * @return data: orders
+     */
+    @RequestMapping("/order/searches")
+    @ResponseBody
+    public String getOrdersByUserId(@RequestBody User user) {
+        List<Order> orders = orderService.findOrderByUserId(user.getId());
+        if (orders.isEmpty()) {
+            ResponseJson rm = new ResponseJson(RespCode.CODE_1001, "未查找到相关订单");
+            return JSONObject.toJSONString(rm.toMap());
+        } else {
+            ResponseJson rm = new ResponseJson(RespCode.CODE_1000, "查询用户订单成功", orders);
+            return JSONObject.toJSONString(rm.toMap());
+        }
+    }
+
+    /**
+     * 查找所有未处理的订单
+     * @return data: orders
+     */
+    @RequestMapping("/order/list")
+    @ResponseBody
+    public String orderProcess() {
+        List<Order> orders = orderService.findOrderByStatus("untreated");
+        if (orders != null) {
+            ResponseJson rm = new ResponseJson(RespCode.CODE_1000, "未处理订单查询成功", orders);
+            return JSONObject.toJSONString(rm.toMap());
+        } else {
+            ResponseJson rm = new ResponseJson(RespCode.CODE_1000, "没有未处理的订单");
+            return JSONObject.toJSONString(rm.toMap());
+        }
+
+    }
+
+    /**
+     * 接受指定ID的订单
+     * @param order order.id
+     * @return data: order.id
+     */
+    @RequestMapping("/order/accept")
+    @ResponseBody
+    public String acceptOrder(@RequestBody Order order) {
+        Order od = orderService.checkOrderById(order.getId());
+        od.setStatus("accepted");
+        orderService.updateOrderStatus(od);
+        ResponseJson rm = new ResponseJson(RespCode.CODE_1000, "已接受订单", od);
+        return JSONObject.toJSONString(rm.toMap());
+    }
+
+    /**
+     * 拒绝指定ID的订单
+     * @param order order.id
+     * @return data: order.id
+     */
+    @RequestMapping("/order/reject")
+    @ResponseBody
+    public String rejectOrder(@RequestBody Order order) {
+        //获取订单并修改订单状态
+        Order od = orderService.checkOrderById(order.getId());
+
+        od.setStatus("rejected");
+        orderService.updateOrderStatus(od);
+
+        //库存回滚
+        Product product = productService.findById(od.getProduct_id());
+        product.setStock(product.getStock() - od.getAmount());
+        productService.updateProduct(product);
+
+        ResponseJson rm = new ResponseJson(RespCode.CODE_1000, "已拒绝订单");
+        return JSONObject.toJSONString(rm.toMap());
+    }
+}
+/* 以下均由前端直接实现
 
     @RequestMapping("/order/confirmOrder")
     public String confirmOrder(@ModelAttribute Order order, Model model, HttpServletRequest request) {
@@ -47,6 +156,7 @@ public class OrderController {
 
         //比较购买数量和库存
         Integer stock = product.getStock();
+
         if(stock >= amount) {
             //设置订单详情
             order.setMoney(amount*product.getPrice());
@@ -102,7 +212,7 @@ public class OrderController {
                 Order order = orderService.checkOrderById(order_id);
                 Product product = productService.findById(order.getProduct_id());
                 product.setStock(product.getStock()- order.getAmount());
-                productService.updateStock(product);
+                productService.updateProduct(product);
 
                 //转向致谢页面
                 return "thanks";
@@ -116,14 +226,7 @@ public class OrderController {
         }
     }
 
-    @RequestMapping("/order/list")
-    public String orderProcess(Model model){
-        List<Order> orders = orderService.findOrderByStatus("untreated");
-        model.addAttribute("untreated_orders", orders);
 
-        model.addAttribute("productService", productService);
-        return "orderList";
-    }
 
     @RequestMapping("/order/status/{status}")
     public String rejectOrder(@PathVariable("status") String status, @RequestParam("order_id") Integer order_id, Model model) {
@@ -138,19 +241,8 @@ public class OrderController {
         return "orderList";
     }
 
-    /*
-        @RequestMapping("/order/accept")
-    public String acceptOrder(@RequestParam("order_id") Integer order_id, Model model) {
-        Order order = orderService.checkOrderById(order_id);
-        order.setStatus("accepted");
-        orderService.updateOrderStatus(order);
 
-        List<Order> orders = orderService.findOrderByStatus("untreated");
-        model.addAttribute("untreated_orders", orders);
 
-        model.addAttribute("productService", productService);
-        return "orderList";
-    }
 
     @RequestMapping(value="/order", method= RequestMethod.GET)
     public String checkOrderById(
@@ -168,5 +260,6 @@ public class OrderController {
         response.sendRedirect(request.getContextPath()+"/order");
         return;
     }
-    */
+
 }
+*/

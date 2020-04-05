@@ -1,21 +1,18 @@
 package com.zhangqw7.project.controller;
 
+import com.alibaba.fastjson.JSONObject;
+import com.zhangqw7.project.constant.RespCode;
 import com.zhangqw7.project.model.Order;
 import com.zhangqw7.project.model.User;
 import com.zhangqw7.project.service.OrderService;
 import com.zhangqw7.project.service.ProductService;
 import com.zhangqw7.project.service.UserService;
+import com.zhangqw7.project.utils.ResponseJson;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-import java.io.IOException;
 import java.util.List;
-import java.util.UUID;
 
 @Controller
 //@RequestMapping("/user")
@@ -30,31 +27,182 @@ public class UserController {
     @Autowired
     private OrderService orderService;
 
-    @RequestMapping("/user/registering")
-    public String registering() {
-        return "registerForm";
+    /**
+     * 注册并写入数据库
+     * @param us 注册信息
+     * @return 返回信息
+     */
+    @RequestMapping(value = "/user/register", method = RequestMethod.POST)
+    @ResponseBody
+    public String register(@RequestBody User us) {
+        User user = userService.findUserByName(us.getUsername());
+//        System.out.println(user.getUsername());
+        if(user == null){
+            userService.register(us);
+            System.out.println(us.getUsername()+"注册成功");
+
+            ResponseJson  rm = new ResponseJson(RespCode.CODE_1000, "注册成功");
+            return JSONObject.toJSONString(rm.toMap());
+        }else {
+            System.out.println("用户名已存在，请更改用户名。。。");
+//            return "registerForm";
+            ResponseJson  rm = new ResponseJson(RespCode.CODE_1001, "用户已存在");
+            return JSONObject.toJSONString(rm.toMap());
+        }
+    }
+
+    /**
+     * 查找所有用户
+     * @return 用户列表
+     */
+    @RequestMapping(value = "/user/findAll")
+    @ResponseBody
+    public String findAll() {
+        List<User> users = userService.findAllUser();
+        ResponseJson  rm = new ResponseJson(RespCode.CODE_1000, "查找所有用户成功", users);
+        return JSONObject.toJSONString(rm.toMap());
+    }
+
+    /**
+     *登录
+     * @param us 登录所需信息
+     * @return 登录结果
+     */
+    @RequestMapping(value = "/user/login", method = RequestMethod.POST)
+    @ResponseBody
+//    public String login(@RequestBody User us, HttpServletRequest request) {
+    public String login(@RequestBody User us) {
+
+        User user = userService.findUserByName(us.getUsername());
+
+//        System.out.println("系统路径为"+request.getContextPath());
+//        System.out.println("Servlet路径为"+request.getServletPath());
+
+        System.out.println(us);
+        // UUID.randomUUID()
+
+//        JSONObject object = new JSONObject(); // for test
+
+        if(user != null) {
+            if(user.getPassword().equals(us.getPassword())) {
+                System.out.println("登录成功");
+
+//                HttpSession session = request.getSession(true);
+
+                User user_lgd = userService.findUserByName(us.getUsername());
+
+//                Integer user_id = user_lgd.getId();
+//                session.setAttribute("session", user_id);
+//                return "catalogue";
+
+                ResponseJson  rm = new ResponseJson(RespCode.CODE_1000, "登录成功", user_lgd);
+                return JSONObject.toJSONString(rm.toMap());
+            }else {
+                System.out.println("密码错误，请重新登录");
+//                return "../../index";
+                ResponseJson  rm = new ResponseJson(RespCode.CODE_1001, "密码错误");
+                return JSONObject.toJSONString(rm.toMap());
+            }
+        }else {
+            System.out.println("用户不存在，请注册。。。");
+//            return "registerForm";
+            ResponseJson  rm = new ResponseJson(RespCode.CODE_1001, "请登录后再选购");
+            return JSONObject.toJSONString(rm.toMap());
+        }
+    }
+
+    /**
+     * 注销用户
+     * param: 用户信息
+     * @return 注销结果
+     */
+    @RequestMapping(value = "/user/cancel", method = RequestMethod.POST)
+    @ResponseBody
+//    public String cancel(@RequestBody User us, HttpServletRequest request) {
+    public String cancel(@RequestBody User us) {
+//        HttpSession session = request.getSession();
+//        Integer user_id = (Integer) session.getAttribute("session");
+//        System.out.println(us);
+        User user = userService.findUserById(us.getId());
+        String name = user.getUsername();
+
+        userService.cancel(user);
+//        session.removeAttribute("session");
+        System.out.println("控制器注销用户");
+
+//        return "../../index";
+        ResponseJson  rm = new ResponseJson(RespCode.CODE_1000, "用户"+name+"已注销", us.getId());
+        return JSONObject.toJSONString(rm.toMap());
+    }
+
+
+    /**
+     * 重置用户密码
+     * @param us 账号信息
+     * @return 重置结果
+     */
+    @RequestMapping("/user/reset")
+    @ResponseBody
+    public String reset(@RequestBody User us) {
+        try{
+            userService.update(us);
+            System.out.println("控制器重置用户密码");
+
+            ResponseJson  rm = new ResponseJson(RespCode.CODE_1000, "用户"+us.getUsername()+
+                    "密码已重置为默认密码5tgb^YHN，请提醒该用户及时更改", us.getId());
+            return JSONObject.toJSONString(rm.toMap());
+        }catch (Exception e){
+            ResponseJson  rm = new ResponseJson(RespCode.CODE_1001, "用户"+us.getId()+"密码重置失败");
+            return JSONObject.toJSONString(rm.toMap());
+        }
+
+    }
+
+    /**
+     * 更新用户密码
+     * @param:  用户信息
+     * @return 更新结果
+     */
+    @RequestMapping("/user/update")
+    @ResponseBody
+    public String update(@RequestBody User us) {
+        User user = userService.findUserById(us.getId());
+        user.setPassword(us.getPassword());
+        userService.update(user);
+        System.out.println("控制层修改密码成功");
+//        return "catalogue";
+        ResponseJson  rm = new ResponseJson(RespCode.CODE_1000, "更新成功");
+        return JSONObject.toJSONString(rm.toMap());
+    }
+
+    /**
+     * 获取用户个人所有订单
+     * @param： 用户信息
+     * @return： 订单列表
+     */
+    @RequestMapping("/user/orders")
+    @ResponseBody
+//    public String viewOrders(Model model, HttpServletRequest request) {
+    public String viewOrders(@RequestBody User us) {
+//        HttpSession session = request.getSession(true);
+//        Integer user_id = (Integer) session.getAttribute("session");
+//        List<Order> orders = orderService.findOrderByUserId(user_id);
+
+        List<Order> orders = orderService.findOrderByUserId(us.getId());
+
+//        model.addAttribute("orders", orders);
+//        model.addAttribute("productService", productService);
+//        return "userOrders";
+
+        ResponseJson  rm = new ResponseJson(RespCode.CODE_1000, "注销成功", orders);
+        return JSONObject.toJSONString(rm.toMap());
     }
 
 /*
-    @RequestMapping(value = "/user/register", method = RequestMethod.POST)
-    public void register(@ModelAttribute User user, HttpServletRequest request, HttpServletResponse response) throws IOException {
-        userService.register(user);
-        response.sendRedirect(request.getContextPath() + "/../../product/catalog");
-        return;
-    }
-    */
 
-    @RequestMapping(value = "/user/register", method = RequestMethod.POST)
-    public String register(@ModelAttribute User us) {
-        User user = userService.findUserByName(us.getUsername());
-        if(user == null){
-            userService.register(us);
-            System.out.println("注册成功");
-            return "catalogue";
-        }else {
-            System.out.println("用户名已存在，请更改用户名。。。");
-            return "registerForm";
-        }
+    @RequestMapping("/user/registering")
+    public String registering() {
+        return "registerForm";
     }
 
     @RequestMapping("/user/index")
@@ -62,85 +210,11 @@ public class UserController {
         return "../../index";
     }
 
-    @RequestMapping(value = "/user/login", method = RequestMethod.POST)
-    public String login(@ModelAttribute User us, HttpServletRequest request) {
-//     public String doLogin(@RequestBody String username,String password) {
-        //String username = request.getParameter("username");
-        //String password = request.getParameter("password");
-        User user = userService.findUserByName(us.getUsername());
-
-//        System.out.println("系统路径为"+request.getContextPath());
-//        System.out.println("Servlet路径为"+request.getServletPath());
-
-
-        // UUID.randomUUID()
-
-        if(user != null) {
-            if(user.getPassword().equals(us.getPassword())) {
-                System.out.println("登录成功");
-
-                HttpSession session = request.getSession(true);
-                session.setAttribute("session", userService.findUserByName(us.getUsername()).getId());
-
-                return "catalogue";
-            }else {
-                System.out.println("密码错误，请重新登录");
-                return "../../index";
-            }
-        }else {
-            System.out.println("用户不存在，请注册。。。");
-            return "registerForm";
-        }
-    }
-
     @RequestMapping("/user/setting")
     public String setting() {
         return "userSetting";
     }
 
-    @RequestMapping("/user/cancel")
-    public String cancel(HttpServletRequest request) {
-        HttpSession session = request.getSession();
-        Integer user_id = (Integer) session.getAttribute("session");
-        User user = userService.findUserById(user_id);
-        userService.cancel(user);
-        session.removeAttribute("session");
-        System.out.println("控制器注销用户");
-        return "../../index";
-    }
-
-    @RequestMapping("/user/reset")
-    public String reset() {
-        return "userReset";
-    }
-
-
-    @RequestMapping("/user/update")
-    public String update(@RequestParam("password") String password, HttpServletRequest request) {
-
-//        System.out.println("Servlet路径为"+request.getServletPath());
-
-        HttpSession session = request.getSession();
-        Integer user_id = (Integer) session.getAttribute("session");
-        User user = userService.findUserById(user_id);
-        user.setPassword(password);
-        userService.update(user);
-        System.out.println("控制层修改密码成功");
-        return "catalogue";
-    }
-
-    @RequestMapping("/user/orders")
-    public String viewOrders(Model model, HttpServletRequest request) {
-        HttpSession session = request.getSession(true);
-        Integer user_id = (Integer) session.getAttribute("session");
-
-        List<Order> orders = orderService.findOrderByUserId(user_id);
-        model.addAttribute("orders", orders);
-
-        model.addAttribute("productService", productService);
-
-        return "userOrders";
-    }
 
     @RequestMapping("/admin/login")
     public String adminLogin() {
@@ -217,4 +291,16 @@ public class UserController {
             return "adminSetting";
         }
     }
+
+    @RequestMapping(value = "/user/test", method=RequestMethod.POST)
+    @ResponseBody
+//    public JSONObject test(String username, String password) {
+    public Object test(@RequestBody User user) {
+//    public String test(@RequestBody String string) {
+        System.out.println(user.getUsername());
+
+//        return "../../index";
+//        return JSON.parseObject(string);
+        return JSONObject.toJSON(user);
+    }*/
 }
